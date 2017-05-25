@@ -7,7 +7,7 @@ import numpy as np
 sos_exp = {2 : pd.Series([15.287, 16.41671, 8.713, 158.265, 404.141]),
         3 : pd.Series([112.061,77.112,15.61,396.055,882.35]),
         4 : pd.Series([826.19,557.1341,322.2,1989.497,3685.24]),
-        5 : pd.Series([2212.598,1691.806,1341.893,4706.5,7603.15])}
+        5 : pd.Series([2212.598,1691.806,1341.893,4750.712,7603.15])}
 sos_exp = pd.DataFrame(sos_exp)
 energy = []
 sos = 0
@@ -90,7 +90,9 @@ def get_data():
                                     elif a == 4:
                                         sos_cas = relenergy_cas[4]    
                                     elif a==2:
-                                        sos_cas = relenergy_cas[10]-relenergy_cas[4]    
+                                        sos_cas = relenergy_cas[8]-relenergy_cas[4]    
+                                        if g==2:
+                                            sos_cas = relenergy_cas[10]-relenergy_cas[4]    
                                     elif a == 3:
                                         sos_cas = relenergy_cas[5]    
 
@@ -136,7 +138,9 @@ def get_data():
                                 elif a == 4:
                                     sos = relenergy[4]    
                                 elif a ==2:
-                                    sos = relenergy[10]-relenergy[4]    
+                                    sos = relenergy[8]-relenergy[4]    
+                                    if g==2:
+                                        sos = relenergy[10]-relenergy[4]    
                                 elif a == 3:
                                     sos = relenergy[5]    
 
@@ -239,7 +243,9 @@ def get_data_contracted():
                                     elif a == 4:
                                         sos_cas = relenergy_cas[4]    
                                     elif a==2:
-                                        sos_cas = relenergy_cas[10]-relenergy_cas[4]    
+                                        sos_cas = relenergy_cas[8]-relenergy_cas[4]    
+                                        if g==2:
+                                            sos_cas = relenergy_cas[10]-relenergy_cas[4]    
                                     elif a == 3:
                                         sos_cas = relenergy_cas[5]    
 
@@ -284,7 +290,9 @@ def get_data_contracted():
                                 elif a == 4:
                                     sos = relenergy[4]    
                                 elif a ==2:
-                                    sos = relenergy[10]-relenergy[4]    
+                                    sos = relenergy[8]-relenergy[4]    
+                                    if g==2:
+                                        sos = relenergy[10]-relenergy[4]    
                                 elif a == 3:
                                     sos = relenergy[5]    
 
@@ -372,5 +380,6 @@ def get_error_contracted(data):
                         if data_abs_error.loc[idx[met,bs,fc],idx[a,b]] == -sos_exp[a][b]:
                             data_abs_error.loc[idx[met,bs,fc],idx[a,b]] = np.nan  
     return data_abs_error, data_perc_error
-get_data()
-get_data_contracted()
+if __name__=='__main__':
+    get_data()
+    get_data_contracted()
