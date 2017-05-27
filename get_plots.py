@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
 import get_energies
+import scipy
 
 #defining graphing colors
 red = '#e41a1c'
@@ -27,12 +28,12 @@ atoms = [['B','Al','Ga','In'],['C','Si','Ge','Sn'],['N','P','As','Sb'],['O','S',
 
 idx = pd.IndexSlice
 Labels = [['Period 2','Period 3','Period 4', 'Period 5'],['Boron Group','Carbon Group','Pnictogens','Chalcogens','Halogens'],['CASSCF','CASPT2','MR-CISD+Q'],['DZ','TZ','QZ','5Z'],['all electron','No Frozen Core']]
-variable = [[2],[0,1,2,3,4],['zcasscf','caspt2','mrci'],['dz','tz','qz','fz'],['fc','nfc']]
+variable = [[2,3,4,5],[0,1,2,3,4],['zcasscf','caspt2','mrci'],['dz','tz','qz','fz'],['fc','nfc']]
 yc = []
 y=[]
 
 #plots panels by period, shows contracted vs. uncontracted
-def by_con_ucon(abserr,abserrc, period,atomlab,fc):
+def by_contraction(abserr,abserrc, period,atomlab,fc):
 
     var= ['dz','tz','qz']
 
@@ -110,7 +111,7 @@ def by_con_ucon(abserr,abserrc, period,atomlab,fc):
     l5,=ax0.plot(x,np.ones(len(ticks))*100,'k:',label='contracted')
     
     hor = [1.5,1,1] 
-    place = [[-2.7,-2.7,0.5,-23,-45],[-25,-13,0,-60,-85],[-225,-140,0,-500,-750]]
+    place = [[-2.7,-2.7,0.5,-23,-45],[-25,-13,-5.3,-60,-85],[-225,-140,-115,-500,-700]]
     ax0.text(hor[atomlab],place[atomlab][0],'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][0]))
     ax1.text(hor[atomlab],place[atomlab][1],'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][1]))
     ax2.text(hor[atomlab],place[atomlab][2],'Exp.: {:>6.1f} cm$^{{-1}}$'.format(sos_list[atomlab][2]))
@@ -129,6 +130,80 @@ def by_con_ucon(abserr,abserrc, period,atomlab,fc):
     #plt.suptitle(title ,fontsize=20)
     plt.show()
 
+def by_basisset(abserr, percerr,period,atomlab):
+
+    var= ['dz','tz','qz']
+    if period==5:
+        var= ['tz','qz']
+    for var1 in variable[1]: 
+        for var2 in variable[2]: 
+            #    print(var1,var2,var3)
+             y.append(make_y(abserr, period,var1,var2,var,'fc','basisset'))
+
+    fig,((ax0,ax1,ax2),(ax3,ax4,ax5)) = plt.subplots(2,3,sharex=True,sharey=False)
+    
+    fig.delaxes(ax5)
+    ticks = ['DZ','TZ','QZ'] 
+    if period ==5:
+        ticks = ['TZ','QZ'] 
+    x = np.arange(len(ticks))
+
+    plt.xticks(x, ticks)
+    plt.setp(ax0.get_xticklabels(),visible=True)
+    plt.setp(ax1.get_xticklabels(),visible=True)
+    plt.setp(ax2.get_xticklabels(),visible=True)
+
+    l1,=ax0.plot(x,y[0],'-o',label =Labels[2][0], color=red)
+    l2,=ax0.plot(x,y[1],'-o',label =Labels[2][1], color=green)
+    l3,=ax0.plot(x,y[2],'-o',label =Labels[2][2], color=blue)
+
+    ax1.plot(x,y[3],'-o',label ='',color=red)
+    ax1.plot(x,y[4],'-o',label ='',color=green)
+    ax1.plot(x,y[5],'-o',label ='',color=blue)
+
+    ax2.plot(x,y[6],'-o',label ='',color=red)
+    ax2.plot(x,y[7],'-o',label ='',color=green)
+    ax2.plot(x,y[8],'-o',label ='',color=blue)
+
+    ax3.plot(x,y[9],'-o',label ='',color=red)
+    ax3.plot(x,y[10],'-o',label ='',color=green)
+    ax3.plot(x,y[11],'-o',label ='',color=blue)
+
+    ax4.plot(x,y[12],'-o',label ='',color=red)
+    ax4.plot(x,y[13],'-o',label ='',color=green)
+    ax4.plot(x,y[14],'-o',label ='',color=blue)
+
+    if period==3:
+        ax0.set_ylim(ymax=0)
+        ax1.set_ylim(ymax=0)
+        ax2.set_ylim(ymax=0)
+#        ax3.set_ylim(ymax=0,ymin=-18)
+#        ax4.set_ylim(ymax=0,ymin=-40)
+#    ax.set_xlabel('Basis Set',fontsize=15)
+#    plt.text(1.7,-3.0,'Exp. Splitting: {:>6.1f} cm$^{{-1}}$'.format(sos_exp[per][atomnum]))
+    #l4, = ax0.plot(x,np.ones(4),'k-',label ='all electron')
+    #l5,=ax0.plot(x,np.ones(4),'k--',label='frozen core')
+
+    hor = [1.6,1,1,0.5] 
+    place = [[-2.7,-2.7,0.5,-16,-35],[-12,-6,-4,-40,-10],[-130,-67,-80,-225,-125],[-130,-67,-80,-225,-125]]
+    ax0.text(hor[atomlab],place[atomlab][0],'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][0]))
+    ax1.text(hor[atomlab],place[atomlab][1],'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][1]))
+    ax2.text(hor[atomlab],place[atomlab][2],'Exp.: {:>6.1f} cm$^{{-1}}$'.format(sos_list[atomlab][2]))
+    ax3.text(hor[atomlab],place[atomlab][3],'Exp.: {:>6.1f} cm$^{{-1}}$'.format(sos_list[atomlab][3]))
+    ax4.text(hor[atomlab],place[atomlab][4],'Exp.: {:>6.1f} cm$^{{-1}}$'.format(sos_list[atomlab][4]))
+
+    ax0.set_title(atom_label[atomlab][0])
+    ax1.set_title(atom_label[atomlab][1])
+    ax2.set_title(atom_label[atomlab][2])
+    ax3.set_title(atom_label[atomlab][3])
+    ax4.set_title(atom_label[atomlab][4])
+    #plt.legend(handles=[l1,l2,l3,l4,l5],loc = 'upper center',frameon=False,bbox_to_anchor=(-0.1,-0.1),ncol=5)
+    #title = 'Absolute Splitting Error at Various Basis Sets' 
+    plt.legend(handles=[l1,l2,l3],loc = 'lower right',frameon=False,bbox_to_anchor = (2.07,0.2),ncol=1)
+    fig.text(0.07,0.5,'Absolute Splitting Error (cm$^{-1}$)',ha='center',va='center',rotation = 'vertical',fontsize = 15)
+    #plt.suptitle(title ,fontsize=20)
+    plt.show()
+
 #plots panels by period, shows frozen core vs. no frozen core only for period 2
 def by_basisset_per2(abserr, percerr,period,atomlab):
 
@@ -141,12 +216,11 @@ def by_basisset_per2(abserr, percerr,period,atomlab):
     fig,((ax0,ax1,ax2),(ax3,ax4,ax5)) = plt.subplots(2,3,sharex=True,sharey=False)
     
     fig.delaxes(ax5)
-    ticks = ['DZ','TZ','QZ'] 
-    x = np.arange(len(ticks))
-    if period ==2:
-        x = np.arange(len(variable[3]))
-        ticks = Labels[3]
+
+    x = np.arange(len(variable[3]))
+    ticks = Labels[3]
     plt.xticks(x, ticks)
+
     plt.setp(ax0.get_xticklabels(),visible=True)
     plt.setp(ax1.get_xticklabels(),visible=True)
     plt.setp(ax2.get_xticklabels(),visible=True)
@@ -181,12 +255,11 @@ def by_basisset_per2(abserr, percerr,period,atomlab):
     ax4.plot(x,y[28],'-o',label ='' ,color=green)
     ax4.plot(x,y[29],'-o',label ='' ,color=blue)
 
-    if period ==2:
-        ax0.set_ylim(ymax=0,ymin=-3)
-        ax1.set_ylim(ymax=0,ymin=-3)
-        ax2.set_ylim(ymin=0)
-        ax3.set_ylim(ymax=0,ymin=-18)
-        ax4.set_ylim(ymax=0,ymin=-40)
+    ax0.set_ylim(ymax=0,ymin=-3)
+    ax1.set_ylim(ymax=0,ymin=-3)
+    ax2.set_ylim(ymin=0)
+    ax3.set_ylim(ymax=0,ymin=-18)
+    ax4.set_ylim(ymax=0,ymin=-40)
 #    ax.set_xlabel('Basis Set',fontsize=15)
 #    plt.text(1.7,-3.0,'Exp. Splitting: {:>6.1f} cm$^{{-1}}$'.format(sos_exp[per][atomnum]))
     l4, = ax0.plot(x,np.ones(4),'k-',label ='all electron')
@@ -213,12 +286,12 @@ def by_basisset_per2(abserr, percerr,period,atomlab):
     plt.show()
 
 #plots a comparison of all atoms split by groups for a particular method
-def by_method(data,abserr, percerr,meth,m):
+def by_method(percerr,meth,m):
 
-    fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2,sharex=False,sharey=True)
+    fig,((ax1,ax2,axN),(ax3,ax4,ax5)) = plt.subplots(2,3,sharex=False,sharey=False)
     
+    fig.delaxes(ax5)
     lis = ['dz','tz','qz']
-    dum=[-20,-20,-20,-20]
     for l in lis: 
         for var in variable[1]: 
             y.append(make_y(percerr, variable[0],var,meth,l,'fc','period'))
@@ -228,36 +301,117 @@ def by_method(data,abserr, percerr,meth,m):
     ax2.set_xticks(x)
     ax3.set_xticks(x)
     ax4.set_xticks(x)
+    axN.set_xticks(x)
     ax1.set_xticklabels(atoms[0])
     ax2.set_xticklabels(atoms[1])
     ax3.set_xticklabels(atoms[3])
     ax4.set_xticklabels(atoms[4])
+    axN.set_xticklabels(atoms[2])
 
     ax1.plot(x,y[0],':o',label =Labels[3][0],color=red)
     ax2.plot(x,y[1],':o',label =Labels[3][0],color=orange)
-    ax3.plot(x,y[2],':o',label =Labels[3][0],color=green)
-    ax4.plot(x,y[3],':o',label =Labels[3][0],color=blue)
-    ax1.plot(x,y[4],'--o',label =Labels[3][1],color=red)
-    ax2.plot(x,y[5],'--o',label =Labels[3][1],color=orange)
-    ax3.plot(x,y[6],'--o',label =Labels[3][1],color=green)
-    ax4.plot(x,y[7],'--o',label =Labels[3][1],color=blue)
-    ax1.plot(x,y[8],'-o' ,label =Labels[3][2],color=red)
-    ax2.plot(x,y[9],'-o' ,label =Labels[3][2],color=orange)
-    ax3.plot(x,y[10],'-o',label =Labels[3][2],color=green)
-    ax4.plot(x,y[11],'-o',label =Labels[3][2],color=blue)
+    axN.plot(x,y[2],':o',label =Labels[3][0],color=purple)
+    ax3.plot(x,y[3],':o',label =Labels[3][0],color=green)
+    ax4.plot(x,y[4],':o',label =Labels[3][0],color=blue)
+    ax1.plot(x,y[5],'--o',label =Labels[3][1],color=red)
+    ax2.plot(x,y[6],'--o',label =Labels[3][1],color=orange)
+    axN.plot(x,y[7],'--o',label =Labels[3][0],color=purple)
+    ax3.plot(x,y[8],'--o',label =Labels[3][1],color=green)
+    ax4.plot(x,y[9],'--o',label =Labels[3][1],color=blue)
+    ax1.plot(x,y[10],'-o' ,label =Labels[3][2],color=red)
+    ax2.plot(x,y[11],'-o' ,label =Labels[3][2],color=orange)
+    axN.plot(x,y[12],'-o',label =Labels[3][0],color=purple)
+    ax3.plot(x,y[13],'-o',label =Labels[3][2],color=green)
+    ax4.plot(x,y[14],'-o',label =Labels[3][2],color=blue)
 
-    l,=ax1.plot(x,dum,'k-',label ='cc-pVQZ')
-    l2,=ax1.plot(x,dum,'k--',label ='cc-pVTZ')
-    l3,= ax1.plot(x,dum,'k:',label ='cc-pVDZ')
+    l,=ax1.plot(x,np.ones(4)*20,'k-',label ='cc-pVQZ')
+    l2,=ax1.plot(x,np.ones(4)*20,'k--',label ='cc-pVTZ')
+    l3,= ax1.plot(x,np.ones(4)*20,'k:',label ='cc-pVDZ')
     ax1.set_title(Labels[1][0])
     ax2.set_title(Labels[1][1])
     ax3.set_title(Labels[1][3])
     ax4.set_title(Labels[1][4])
-    plt.legend(handles=[l3,l2,l],loc = 'upper center',frameon=False,bbox_to_anchor=(-0.1,-0.1),ncol=3)
+    axN.set_title(Labels[1][2])
 
+    ax1.set_ylim(ymax=5,ymin=-20)
+    ax2.set_ylim(ymax=5,ymin=-20)
+    ax3.set_ylim(ymax=5,ymin=-20)
+    ax4.set_ylim(ymax=5,ymin=-20)
+
+    if meth == 'zcasscf': 
+        axN.set_ylim(ymax=32,ymin=-6)
+        axN.set_yticks(scipy.arange(-5,32,5))
+    if meth == 'caspt2':
+        axN.set_yticks(scipy.arange(-30,16,5))
+
+    plt.setp(ax2.get_yticklabels(),visible=False)
+    plt.setp(ax4.get_yticklabels(),visible=False)
+
+    plt.legend(handles=[l3,l2,l],loc = 'lower right',frameon=False,bbox_to_anchor = (2.07,0.2),ncol=1)
     title = 'Relative Splitting Error at {}'.format(m)
     fig.text(0.07,0.5,'Relative Splitting Error (%)',ha='center',va='center',rotation = 'vertical',fontsize = 15)
-    plt.suptitle(title ,fontsize=20)
+    #plt.suptitle(title ,fontsize=20)
+    plt.show()
+
+def contraction_compare(perc,percc):
+
+    var = [[2,3,4],[0,1,2,3,4],['zcasscf','caspt2','mrci'],['dz','tz','qz'],['fc','nfc']]
+
+    for var1 in var[0]: 
+        for var2 in var[2]: 
+            y.append(make_y(perc, var1,4,var2,var[3],'fc','basisset'))
+            yc.append(make_y(percc, var1,4,var2,var[3],'fc','basisset'))
+     
+    fig,((axF,axCl,axBr)) = plt.subplots(1,3,sharex=True,sharey=True)
+    
+    ticks = ['DZ','TZ','QZ'] 
+    x = np.arange(len(ticks))
+
+#    plt.xticks(x, ticks)
+#    plt.setp(ax0.get_xticklabels(),visible=True)
+#    plt.setp(ax1.get_xticklabels(),visible=True)
+#    plt.setp(ax2.get_xticklabels(),visible=True)
+
+    l1,=axF.plot(x,y[0],'-o',label=Labels[2][0],color=red)
+    l2,=axF.plot(x,y[1],'-o',label =Labels[2][1],color=green)
+    l3,=axF.plot(x,y[2],'-o',label =Labels[2][2], color=blue)
+    axF.plot(x,yc[0],':o',label ='',color=red)
+    axF.plot(x,yc[1],':o',label ='',color=green)
+    axF.plot(x,yc[2],':o',label ='', color=blue)    
+
+    axCl.plot(x,y[3],'-o',label ='',color=red)
+    axCl.plot(x,y[4],'-o',label ='',color=green)
+    axCl.plot(x,y[5],'-o',label ='',color=blue)
+
+    axCl.plot(x,yc[3], ':o',label ='',color=red)
+    axCl.plot(x,yc[4],':o',label ='',color=green)
+    axCl.plot(x,yc[5],':o',label ='',color=blue)
+
+    axBr.plot(x,y[6],'-o',label ='',color=red)
+    axBr.plot(x,y[7],'-o',label ='',color=green)
+    axBr.plot(x,y[8],'-o',label ='',color=blue)
+
+    axBr.plot(x,yc[6], ':o',label ='',color=red)
+    axBr.plot(x,yc[7],':o',label ='',color=green)
+    axBr.plot(x,yc[8],':o',label ='',color=blue)
+
+    axF.set_ylim(ymax=5)
+    axCl.set_ylim(ymax=5)
+    axBr.set_ylim(ymax=5)
+
+    l4, = axF.plot(x,np.ones(len(ticks))*100,'k-',label ='uncontracted')
+    l5,=axF.plot(x,np.ones(len(ticks))*100,'k:',label='contracted')
+    
+    #axF.text( 1,1,'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][0]))
+    #axCl.text(1,1,'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][1]))
+    #axBr.text(1,1,'Exp.: {:>6.1f} cm$^{{-1}}$'.format(sos_list[atomlab][2]))
+
+    axF.set_title(atom_label[0][4])
+    axCl.set_title(atom_label[1][4])
+    axBr.set_title(atom_label[2][4])
+    plt.legend(handles=[l1,l2,l3,l4,l5],loc = 'upper center',frameon=False,bbox_to_anchor=(-0.69,-0.07),ncol=5)
+    #plt.legend(handles=[l1,l2,l3,l4,l5],loc = 'lower right',frameon=False,bbox_to_anchor = (2.07,0.2),ncol=1)
+    fig.text(0.07,0.5,'Relative Splitting Error (%)',ha='center',va='center',rotation = 'vertical',fontsize = 15)
     plt.show()
 
 def make_y(matrix,period,group,method,basisset,frozencore,var):
@@ -283,11 +437,19 @@ if __name__=='__main__':
     data = get_energies.get_data()
     datac = get_energies.get_data_contracted()
     abso, perc = get_energies.get_error(data)
-
     absoc,percc = get_energies.get_error_contracted(datac)
+    #by_method(perc,'caspt2','CASPT2')
+    #by_method(perc,'mrci','MRCI')
+    #by_method(perc,'zcasscf','CASSCF')
 
-    #by_method(data,abso, perc,'caspt2','CASPT2')
-    #by_method(data,abso, perc,'zcasscf','CASSCF')
-    #by_con_ucon(abso,absoc,2,0,'nfc')
+    #contraction_compare(perc,percc)
+
+    #by_contraction(abso,absoc,2,0,'fc')
+    by_contraction(abso,absoc,2,0,'nfc')
+    #by_contraction(abso,absoc,3,1,'fc')
+    #by_contraction(abso,absoc,4,2,'fc')
+
     #by_basisset_per2(abso,perc,2,0)
-
+    #by_basisset(abso,perc,3,1)
+    #by_basisset(abso,perc,4,2)
+    #by_basisset(abso,perc,5,3)
