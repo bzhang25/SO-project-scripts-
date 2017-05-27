@@ -79,7 +79,7 @@ def get_data():
                                 energy_cas = bagel.get_energy(lines, 'zcasscf') 
 
                                 for i,e in enumerate(energy_cas):
-                                    relenergy_cas.append(float(energy_cas[i])-float(energy_cas[0])) 
+                                    relenergy_cas.append((float(energy_cas[i])-float(energy_cas[0]))*conv) 
                                 if len(relenergy_cas) == 0 :
                                     sos_cas = 0
                                 else:
@@ -108,7 +108,7 @@ def get_data():
                                 else:
                                     frocore = 'fc'
 
-                                data[g,a]['zcasscf',basisset, frocore] =sos_cas*conv
+                                data[g,a]['zcasscf',basisset, frocore] =sos_cas
 
                                 with open('data/energy.dat', 'a') as f:
                                     f.write(line_form.format(atom, 'casscf', basisset, n, energy_cas))
@@ -119,13 +119,13 @@ def get_data():
                                     f.write('\n')
 
                                 with open('data/sos.dat', 'a') as f:
-                                    f.write(line_form_sos.format(atom,  'casscf' , basisset, n, sos_cas, sos_cas*conv))
+                                    f.write(line_form_sos.format(atom,  'casscf' , basisset, n, sos_cas/conv, sos_cas))
                                     f.write('\n')
 
                             energy = bagel.get_energy(lines, method) 
 
                             for i,e in enumerate(energy):
-                                relenergy.append(float(energy[i])-float(energy[0]))
+                                relenergy.append((float(energy[i])-float(energy[0]))*conv)
 
                             if len(relenergy)== 0 :
                                 sos = 0
@@ -155,7 +155,7 @@ def get_data():
                             else:
                                 frocore = 'fc'
 
-                            data[g,a][method, basisset,frocore] =sos*conv
+                            data[g,a][method, basisset,frocore] =sos
 
                             with open('data/energy.dat', 'a') as f:
                                 f.write(line_form.format(atom, method, basisset, n, energy))
@@ -166,7 +166,7 @@ def get_data():
                                 f.write('\n')
 
                             with open('data/sos.dat', 'a') as f:
-                                f.write(line_form_sos.format(atom, method, basisset, n, sos, sos*conv))
+                                f.write(line_form_sos.format(atom, method, basisset, n, sos/conv, sos))
                                 f.write('\n')
                         else:
                             pass  
@@ -232,7 +232,7 @@ def get_data_contracted():
                                 energy_cas = bagel.get_energy(lines, 'zcasscf') 
 
                                 for i,e in enumerate(energy_cas):
-                                    relenergy_cas.append(float(energy_cas[i])-float(energy_cas[0])) 
+                                    relenergy_cas.append((float(energy_cas[i])-float(energy_cas[0]))*conv) 
                                 if len(relenergy_cas) == 0 :
                                     sos_cas = 0
                                 else:
@@ -261,7 +261,7 @@ def get_data_contracted():
                                 else:
                                     frocore = 'fc'
 
-                                datac[g,a]['zcasscf',basisset, frocore] =sos_cas*conv
+                                datac[g,a]['zcasscf',basisset, frocore] =sos_cas
 
                                 with open('data/energy_contracted.dat', 'a') as f:
                                     f.write(line_form.format(atom, 'casscf', basisset, n, energy_cas))
@@ -272,13 +272,13 @@ def get_data_contracted():
                                     f.write('\n')
 
                                 with open('data/sos_contracted.dat', 'a') as f:
-                                    f.write(line_form_sos.format(atom,  'casscf' , basisset, n, sos_cas, sos_cas*conv))
+                                    f.write(line_form_sos.format(atom,  'casscf' , basisset, n, sos_cas/conv, sos_cas))
                                     f.write('\n')
 
                             energy = bagel.get_energy(lines, method) 
 
                             for i,e in enumerate(energy):
-                                relenergy.append(float(energy[i])-float(energy[0]))
+                                relenergy.append((float(energy[i])-float(energy[0]))*conv)
 
                             if len(relenergy)== 0 :
                                 sos = 0
@@ -308,7 +308,7 @@ def get_data_contracted():
                             else:
                                 frocore = 'fc'
 
-                            datac[g,a][method, basisset,frocore] =sos*conv
+                            datac[g,a][method, basisset,frocore] =sos
 
                             with open('data/energy_contracted.dat', 'a') as f:
                                 f.write(line_form.format(atom, method, basisset, n, energy))
@@ -319,7 +319,7 @@ def get_data_contracted():
                                 f.write('\n')
 
                             with open('data/sos_contracted.dat', 'a') as f:
-                                f.write(line_form_sos.format(atom, method, basisset, n, sos, sos*conv))
+                                f.write(line_form_sos.format(atom, method, basisset, n, sos/conv, sos))
                                 f.write('\n')
                         else:
                             pass  
@@ -350,7 +350,8 @@ def get_error(data):
                             data_perc_error.loc[idx[met,bs,fc],idx[a,b]] = np.nan 
                         if data_abs_error.loc[idx[met,bs,fc],idx[a,b]] == -sos_exp[a][b]:
                             data_abs_error.loc[idx[met,bs,fc],idx[a,b]] = np.nan  
-#    print(data_abs_error.loc[idx['caspt2','fz','fc'],idx[2,4]])
+    #print(data_abs_error.loc[idx['caspt2','tz','fc'],idx[5,0]])
+    #print(data_perc_error.loc[idx['caspt2','tz','fc'],idx[5,0]])
  #   print(data_abs_error[2,4]['caspt2','fz','fc'])
     return data_abs_error, data_perc_error
 
