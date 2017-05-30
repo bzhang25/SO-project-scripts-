@@ -173,6 +173,87 @@ def get_data():
         
     return data
 
+def get_data_aux():
+
+    #forming pandas multiindex dataframe structure 
+    col = [[2],[0,1,2,3,4]]
+    row = [['zcasscf','caspt2', 'mrci'],['dz'],['fc']]
+    cols = pd.MultiIndex.from_product(col, names = ['period','group'])
+    rows = pd.MultiIndex.from_product(row, names = ['methods','basisset','frozencore'])
+
+    data = pd.DataFrame(np.zeros((3,5)), index = rows, columns = cols).sort_index().sort_index(axis=1) #np.zeros is row by columns
+
+    #initializing variables
+    methods = ['caspt2','mrci']
+    group = [2]
+
+    for g in group:
+        basisset = 'dz'
+        atoms = ['B','C','N','O','F']
+        for a, atom in enumerate(atoms):
+            for method in methods:
+                relenergy = []
+                relenergy_cas = []
+                path = '{}/{}/aux_test/{}/{}/ncore1/'.format(g, basisset, atom, method)
+                path += 'output.dat'
+                #print(path)
+                if os.path.isfile(path) == True:
+                    with open(path, 'r') as f:
+                        lines = f.readlines()
+
+                    if method == 'caspt2':
+
+                        energy_cas = bagel.get_energy(lines, 'zcasscf') 
+
+                        for i,e in enumerate(energy_cas):
+                            relenergy_cas.append((float(energy_cas[i])-float(energy_cas[0]))*conv) 
+                        if len(relenergy_cas) == 0 :
+                            sos_cas = 0
+                        else:
+                            if a == 0:
+                                sos_cas = relenergy_cas[2]    
+                            elif a == 1:    
+                                sos_cas = relenergy_cas[1]    
+                            elif a == 4:
+                                sos_cas = relenergy_cas[4]    
+                            elif a==2:
+                                sos_cas = relenergy_cas[8]-relenergy_cas[4]    
+                                if g==2:
+                                    sos_cas = relenergy_cas[10]-relenergy_cas[4]    
+                            elif a == 3:
+                                sos_cas = relenergy_cas[5]    
+
+                        data[g,a]['zcasscf',basisset, 'fc'] =sos_cas
+
+                    energy = bagel.get_energy(lines, method) 
+
+                    for i,e in enumerate(energy):
+                        relenergy.append((float(energy[i])-float(energy[0]))*conv)
+
+                    if len(relenergy)== 0 :
+                        sos = 0
+                    else:
+
+                        if a == 0:
+                            sos = relenergy[2]    
+                        elif a == 1:    
+                            sos = relenergy[1]    
+                        elif a == 4:
+                            sos = relenergy[4]    
+                        elif a ==2:
+                            sos = relenergy[8]-relenergy[4]    
+                            if g==2:
+                                sos = relenergy[10]-relenergy[4]    
+                        elif a == 3:
+                            sos = relenergy[5]    
+
+                    data[g,a][method, basisset,'fc'] =sos
+
+                else:
+                    pass  
+    
+    return data
+
 def get_data_contracted():
 
     #initializing files 
@@ -382,5 +463,6 @@ def get_error_contracted(data):
                             data_abs_error.loc[idx[met,bs,fc],idx[a,b]] = np.nan  
     return data_abs_error, data_perc_error
 if __name__=='__main__':
-    get_data()
-    get_data_contracted()
+    #get_data()
+    #get_data_contracted()
+    get_data_aux()
