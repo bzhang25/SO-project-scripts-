@@ -185,7 +185,7 @@ def by_basisset(abserr, percerr,period,atomlab):
     #l5,=ax0.plot(x,np.ones(4),'k--',label='frozen core')
 
     hor = [1.6,1,1,0.5] 
-    place = [[-2.7,-2.7,0.5,-16,-35],[-12,-6,-4,-40,-10],[-130,-67,-80,-225,-125],[-130,-67,-80,-225,-125]]
+    place = [[-2.7,-2.7,0.5,-16,-35],[-12,-6,-4,-40,-10],[-130,-67,-80,-225,-125],[-340,-230,167,-550,-250]]
     ax0.text(hor[atomlab],place[atomlab][0],'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][0]))
     ax1.text(hor[atomlab],place[atomlab][1],'Exp.: {:>5.1f} cm$^{{-1}}$'.format(sos_list[atomlab][1]))
     ax2.text(hor[atomlab],place[atomlab][2],'Exp.: {:>6.1f} cm$^{{-1}}$'.format(sos_list[atomlab][2]))
@@ -445,11 +445,11 @@ if __name__=='__main__':
     #contraction_compare(perc,percc)
 
     #by_contraction(abso,absoc,2,0,'fc')
-    by_contraction(abso,absoc,2,0,'nfc')
+    #by_contraction(abso,absoc,2,0,'nfc')
     #by_contraction(abso,absoc,3,1,'fc')
     #by_contraction(abso,absoc,4,2,'fc')
 
     #by_basisset_per2(abso,perc,2,0)
     #by_basisset(abso,perc,3,1)
     #by_basisset(abso,perc,4,2)
-    #by_basisset(abso,perc,5,3)
+    by_basisset(abso,perc,5,3)
