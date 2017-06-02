@@ -257,7 +257,7 @@ def by_basisset_per2(abserr, percerr,period,atomlab):
 
     ax0.set_ylim(ymax=0,ymin=-3)
     ax1.set_ylim(ymax=0,ymin=-3)
-    ax2.set_ylim(ymin=0)
+    ax2.set_ylim(ymin=-0.15)
     ax3.set_ylim(ymax=0,ymin=-18)
     ax4.set_ylim(ymax=0,ymin=-40)
 #    ax.set_xlabel('Basis Set',fontsize=15)
@@ -367,10 +367,10 @@ def contraction_compare(perc,percc):
     ticks = ['DZ','TZ','QZ'] 
     x = np.arange(len(ticks))
 
-#    plt.xticks(x, ticks)
-#    plt.setp(ax0.get_xticklabels(),visible=True)
-#    plt.setp(ax1.get_xticklabels(),visible=True)
-#    plt.setp(ax2.get_xticklabels(),visible=True)
+    plt.xticks(x, ticks)
+    plt.setp(axF.get_xticklabels(),visible=True)
+    plt.setp(axCl.get_xticklabels(),visible=True)
+    plt.setp(axBr.get_xticklabels(),visible=True)
 
     l1,=axF.plot(x,y[0],'-o',label=Labels[2][0],color=red)
     l2,=axF.plot(x,y[1],'-o',label =Labels[2][1],color=green)
@@ -449,7 +449,7 @@ if __name__=='__main__':
     #by_contraction(abso,absoc,3,1,'fc')
     #by_contraction(abso,absoc,4,2,'fc')
 
-    #by_basisset_per2(abso,perc,2,0)
+    by_basisset_per2(abso,perc,2,0)
     #by_basisset(abso,perc,3,1)
     #by_basisset(abso,perc,4,2)
-    by_basisset(abso,perc,5,3)
+    #by_basisset(abso,perc,5,3)
