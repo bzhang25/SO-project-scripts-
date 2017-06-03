@@ -182,30 +182,30 @@ def get_data_F(btype,con):
     data = pd.DataFrame(np.zeros((16,1)), index = rows, columns = cols).sort_index().sort_index(axis=1) #np.zeros is row by columns
 
     methods = ['zcasscf','caspt2']
-    group = [2]
+    g = 2
     basissets = ['dz','tz','qz','fz']
     ncore = [0,1]
     a = 4
 
-    for g in group:
-        for basisset in basissets:
-            for n in ncore:
-                for met in methods:
-                    frocore = 'fc'
-                    if n==0:
-                        frocore = 'nfc'
-                    path = '{}/{}/{}/{}/'.format(btype,con,g, basisset) 
-                    if g == 2:
-                        path += 'ncore' + str(n) + '/'
-                        path += 'output.dat'
-                        #print(path)
-                    if os.path.isfile(path) == True:
-                        with open(path, 'r') as f:
-                            lines = f.readlines()
-                    
-                    energy = bagel.get_energy(lines, method) 
-                    relenergy, sos = h.get_sos(energy,a,g)
-                    datac[g,a][method, basisset,frocore] =sos
+    for basisset in basissets:
+        for n in ncore:
+            for met in methods:
+                frocore = 'fc'
+                if n==0:
+                    frocore = 'nfc'
+                path = '{}/{}/{}/{}/'.format(btype,con,g, basisset) 
+                if g == 2:
+                    path += 'ncore' + str(n) + '/'
+                    path += 'output.dat'
+                    #print(path)
+                if os.path.isfile(path) == True:
+                    with open(path, 'r') as f:
+                        lines = f.readlines()
+                
+                energy = bagel.get_energy(lines, met) 
+                relenergy, sos = h.get_sos(energy,a,g)
+                data[g,a][met, basisset,frocore] =sos
+    return data
 
 def get_error_F(data):
     group = [4]
@@ -217,8 +217,23 @@ def get_error_F(data):
     return abs_error, perc_error
 
 if __name__=='__main__':
-    dat = get_data()
-    datac = get_data_contracted()
-    get_data_aux()
-    get_error(dat)
-    get_error_contracted(datac)
+  #  dat = get_data()
+  #  datac = get_data_contracted()
+  #  get_data_aux()
+  #  get_error(dat)
+  #  get_error_contracted(datac)
+    data = get_data_F('aCVXZ','uncontracted')
+    print(data[2,4]['zcasscf','dz','nfc'])
+    data = get_data_F('aCVXZ','contracted')
+    print(data[2,4]['zcasscf','dz','nfc'])
+    data = get_data_F('CVXZ','uncontracted')
+    print(data[2,4]['zcasscf','dz','nfc'])
+    data = get_data_F('CVXZ','contracted')
+    print(data[2,4]['zcasscf','dz','nfc'])
+    data = get_data_F('aVXZ','uncontracted')
+    print(data[2,4]['zcasscf','dz','nfc'])
+    data = get_data_F('aVXZ','contracted')
+    print(data[2,4]['zcasscf','dz','nfc'])
+    ab,pe = get_error_F(data)
+    print(ab[2,4]['zcasscf','dz','nfc'])
+    print(pe[2,4]['zcasscf','dz','nfc'])
